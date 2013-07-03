@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# vim: set fileencoding=utf-8 :
 
 # "THE BEER-WARE LICENSE" (Revision 42):
 # fcharlier@ploup.net wrote this file. As long as you retain this notice you
