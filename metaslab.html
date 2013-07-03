@@ -1,0 +1,126 @@
+<!--
+"THE BEER-WARE LICENSE" (Revision 42):
+fcharlier@ploup.net wrote this file. As long as you retain this notice you
+can do whatever you want with this stuff. If we meet some day, and you think
+this stuff is worth it, you can buy me a beer in return. François Charlier
+-->
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <title>Metaslab allocation status</title>
+    <style type="text/css" media="screen">
+        text {
+            font-family: "Inconsolata", "Courier New", "Courier", "Fixed", "monospace";
+        }
+
+        .axis path, .axis line {
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+
+        .x.axis path {
+            display: none
+        }
+
+        .axis text {
+            font-size: 11px;
+        }
+
+        .x.axis text {
+            writing-mode: tb
+        }
+
+    </style>
+</head>
+<body>
+    <div class="chart" id="chart">
+
+    </div>
+    <script src="http://d3js.org/d3.v3.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+
+        // http://bl.ocks.org/mbostock/3885304
+        function barChart(data, title) {
+            var wTotal = 1550; // Just fits my display fine …
+            var hTotal = 200;
+            var margin = { top: 20, right: 10, bottom: 30, left: 30 }
+            var w = wTotal - margin.right - margin.left;
+            var h = hTotal - margin.top - margin.bottom;
+            var padding = 1;
+            var yScale = d3.scale.linear()
+                                .domain([0, 100])
+                                .range([h, 0]);
+
+            var xScale = d3.scale.ordinal()
+                                 .domain(data.map(function(v, i) { return i; }))
+                                 .rangeRoundBands([0, w], .1);
+
+            var yAxis = d3.svg.axis()
+                              .scale(yScale)
+                              .orient('left')
+                              .ticks(5);
+
+            var xAxis = d3.svg.axis()
+                              .scale(xScale)
+                              .orient('bottom')
+                              .ticks(10);
+
+            // Margin Convention http://bl.ocks.org/mbostock/3019563
+            var svg = d3.select('#chart')
+                        .append('svg')
+                        .attr('width', wTotal)
+                        .attr('height', hTotal)
+                        .append('g')
+                        .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+
+            svg.append("text")
+               .attr('x', (w / 2))
+               .attr('y', (0 - margin.top / 2))
+               .attr('text-anchor', 'middle')
+               .style('font-size', '12px')
+               .text('Metaslabs allocation ' + title);
+
+            svg.selectAll('rect')
+               .data(data)
+               .enter()
+               .append('rect')
+               .attr('x', function(d, i) { return xScale(i); })
+               .attr('y', function(d) { return yScale(d); })
+               .attr('width', xScale.rangeBand())
+               .attr('height', function(d) { return yScale(0) - yScale(d); })
+               .attr('fill', function(d) { return "rgb(" + Math.floor(d * 255 / 100) + ", " + Math.floor((100 - d) * 255 / 100) + ", 0)"; });
+
+            svg.selectAll('blah')
+               .data(data)
+               .enter()
+               .append('text')
+               .text(function(d) { return d + '%'; })
+               .attr('x', function(d, i) { return xScale(i) + xScale.rangeBand() / 2 - 1; })
+               .attr('y', function(d) { return yScale(d) + 2; })
+               .attr('font-size', '11px')
+               .attr('fill', 'white')
+               .attr('writing-mode', 'tb')
+               ;
+
+           svg.append('g')
+              .attr('class', 'axis')
+              .call(yAxis)
+              ;
+
+           svg.append('g')
+              .attr('class', 'axis x')
+              .attr('transform', 'translate(0, ' + h + ')')
+              .call(xAxis)
+              ;
+        }
+        // Paste the output of `metaslabs.py <somepool>`
+        // Included three examples.
+        barChart([82, 89, 92, 87, 90, 97, 94, 80, 79, 84, 90, 94, 100, 94, 97, 81, 91, 89, 82, 86, 80, 96, 93, 80, 97, 100, 93, 100, 87, 77, 91, 92, 77, 100, 88, 96, 94, 82, 78, 86, 88, 90, 79, 80, 97, 93, 83, 81, 91, 100, 96, 91, 75, 90, 80, 100, 87, 97, 85, 73, 80, 96, 96, 72, 81, 85, 80, 85, 88, 100, 84, 73, 89, 95, 100, 100, 100, 100, 100, 100, 75, 80, 91, 100, 84, 71, 72, 100, 95, 94, 69, 91, 82, 70, 77, 72, 94, 100, 100, 100, 100, 100, 100, 100, 73, 94, 85, 70, 95, 98, 76, 63, 94, 89, 60], '@fullhost 2013-07-03T20:15:12.136246');
+        barChart([93, 90, 28, 32, 94, 95, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 96, 97, 97, 92, 13, 29, 97, 13, 17, 10, 45, 52, 31, 27, 36, 13, 5, 15, 91, 24, 35, 14, 14, 11, 49, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], '@somehost 2013-07-03T20:15:36.045234');
+        barChart([93, 90, 28, 32, 94, 95, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 97, 96, 97, 97, 92, 13, 29, 97, 13, 17, 10, 45, 51, 31, 27, 36, 13, 5, 15, 21, 24, 35, 14, 14, 11, 38, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], '@somehost 2013-07-03T21:16:34.036436');
+
+    </script>
+</body>
+</html>
