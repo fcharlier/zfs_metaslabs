@@ -15,12 +15,14 @@ import sys
 if len(sys.argv) != 2 or len(sys.argv[1]) == 0:
     print >> sys.stderr, 'you shall pass a zpool name as a parameter'
     exit(1)
+poolname = sys.argv[1]
 
 pat = re.compile('metaslab\s+(\d+).+?freepct\s+(\d+)%',
                  re.MULTILINE | re.DOTALL)
-with os.popen('zdb -mm %s' % sys.argv[1]) as p:
+with os.popen('zdb -mm %s' % poolname) as p:
     data = p.read()
 usage = [100 - int(m.group(2)) for m in pat.finditer(data)]
-print "barChart(%s, '@%s %s');" % (usage,
-                                   socket.gethostname(),
-                                   datetime.datetime.today().isoformat())
+print "barChart(%s, '%s@%s %s');" % (usage,
+                                     poolname,
+                                     socket.gethostname(),
+                                     datetime.datetime.today().isoformat())
